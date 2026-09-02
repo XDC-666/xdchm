@@ -1,0 +1,34 @@
+                    GNU GENERAL PUBLIC LICENSE
+                       Version 2, June 1991
+
+ Copyright (C) 2004-2012 www.xqbase.com  (XiangQi Wizard Light / xqwlight)
+ Copyright (C) 2026  本仓库作者            (xiangqi-engine.js 与界面)
+
+ 本仓库（xiangqi-agent）整体以 GNU General Public License v2（GPL-2.0）
+ 发布。由于仓库内含 xqwlight（www.xqbase.com，GPL-2.0）的派生代码，
+ 因此整个作品须统一采用 GPL-2.0。
+
+ 任何人可自由复制、分发、修改本程序，但须：
+   1. 保留本许可证与版权声明；
+   2. 发布修改版时同样以 GPL-2.0 开源；
+   3. 不附加任何额外限制。
+
+ 本程序基于「原样」提供，不提供任何担保，包括但不限于对
+ 「适销性」与「特定用途适用性」的默示担保。详见下方标准条款。
+
+----------------------------------------------------------------------
+
+ This program is free software; you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation; either version 2 of the License, or
+ (at your option) any later version.
+
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
+
+ 完整许可证文本（英文原文）见：
+ https://www.gnu.org/licenses/old-licenses/gpl-2.0.txt
+
+ 你也可以随本仓库一同收到的 xqwlight/*.js 文件头中查看其原始版权声明。
