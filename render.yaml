@@ -1,0 +1,13 @@
+# Render 部署配置（在 Render 新建 Web Service 时连此仓库，可自动识别）
+services:
+  - type: web
+    name: xiangqi-agent
+    runtime: node
+    plan: free
+    branch: main
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: JWT_SECRET
+        generateValue: true        # Render 自动生成随机密钥
+      # 注意：Render 会自动注入 PORT，无需手动设置

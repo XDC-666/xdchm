@@ -1,90 +1,122 @@
-# 中国象棋 · 人机对战 Agent（xiangqi-agent）
+# 中国象棋 · 人机对战 Agent（全栈版 xiangqi-agent）
 
-一个纯前端（HTML + JavaScript）的中国象棋人机对战程序，**无需服务器、无需安装、双击即玩**。
-内置自研规则引擎与开源强引擎 [xqwlight](https://www.xqbase.com)（ElephantEye 谱系），并附带名家棋谱库与练习模式。
+一个**全栈**中国象棋项目：前端是纯 JavaScript 的中国象棋人机对战程序（自研规则引擎 + 开源强引擎 xqwlight），**后端是 Node.js + Express + SQLite**，提供用户注册登录、对局存档、战绩回放、排行榜等完整 Web 功能。
 
-> 本项目以 **GPL-2.0** 发布（因包含 xqwlight 派生代码，整体须统一为 GPL-2.0）。详见 [LICENSE](./LICENSE)。
+> 本项目以 **GPL-2.0** 发布（因包含 www.xqbase.com 的 xqwlight，GPL-2.0）。
 
----
+## ✨ 功能特性
+- 🎮 **人机对战**：自研搜索引擎（alpha-beta + 开局库）对阵开源强引擎 xqwlight
+- 👤 **用户系统**：注册 / 登录（JWT 鉴权，密码 bcrypt 哈希）
+- 💾 **对局存档**：每局走子序列 + 结果 + 难度存入数据库
+- 🔁 **战绩回放**：查看历史棋局，逐步重放
+- 🏆 **排行榜**：按胜率排名（公开）
+- 📱 纯前端界面，移动端自适应
 
-## ✨ 功能
+## 🧱 技术栈
+- **前端**：原生 HTML / CSS / JavaScript（无框架，零构建）
+- **游戏引擎**：自研 `xiangqi-engine.js` + 开源 xqwlight（position / search / book）
+- **后端**：Node.js + Express
+- **数据库**：SQLite（better-sqlite3，单文件，零运维）
+- **鉴权**：JWT（jsonwebtoken）+ bcryptjs
+- **部署**：GitHub Pages（前端）+ Render（后端，免费）
 
-- **完整中国象棋规则**：蹩马腿、塞象眼、炮架、过河兵、飞将检测一应俱全。
-- **多级 AI**：
-  - 简单 / 中等 / 困难：自研 alpha-beta 极小化极大搜索（迭代加深 + 时间限制）。
-  - 最强（象眼）：接入开源 [xqwlight](https://www.xqbase.com) 引擎，棋力显著提升，思考时长可调（0.5s–5s）。
-- **交互对弈**：Canvas 绘制棋盘，点击选子 / 落子，合法目标高亮，上一步高亮，将军 / 胜负判定。
-- **中文记谱**：标准炮二平五式记谱，支持导出 / 载入 FEN 局面。
-- **名家棋谱库**：内置经引擎校验的名局（胡荣华、王天一、许银川等），可浏览、自动播放、**练习模式**（走错即时提示正解）。
-- **阵营与回合**：可选执红先手或执黑后手，支持悔棋、提示、新对局。
-
----
-
-## 📁 目录结构
-
+## 📂 目录结构
 ```
 xiangqi-agent/
-├── index.html            # 主程序（多文件版，引用下方引擎与 xqwlight）
-├── standalone.html       # 单文件版（所有 CSS/JS 内联，方便单独分享/离线打开）
-├── xiangqi-engine.js     # 自研中国象棋规则与搜索引擎（MIT-compatible 代码，随仓库以 GPL-2.0 发布）
-├── xqwlight/             # 开源强引擎（GPL-2.0，www.xqbase.com）
-│   ├── position.js
-│   ├── search.js
-│   └── book.js
-├── LICENSE
-└── README.md
+├── index.html          # 前端主程序（棋盘 + AI + 全栈界面）
+├── standalone.html      # 单文件版（无需后端，直接打开即玩）
+├── xiangqi-engine.js    # 自研规则 + 搜索引擎
+├── xqwlight/            # 开源强引擎（GPL-2.0，www.xqbase.com）
+├── js/
+│   ├── api.js           # 前端 API 封装 + 登录态管理
+│   └── ui.js            # 登录 / 战绩 / 排行榜 弹窗逻辑
+├── server/              # Node.js 后端
+│   ├── app.js           # Express 入口
+│   ├── db.js            # SQLite 建表（users / games）
+│   ├── auth.js          # 注册 / 登录 / JWT
+│   ├── middleware.js    # JWT 鉴权中间件
+│   └── games.js         # 对局 CRUD + 排行榜
+├── data/                # SQLite 数据库文件（运行时生成，已 gitignore）
+├── render.yaml          # Render 部署配置
+├── package.json
+├── README.md
+└── LICENSE              # GPL-2.0
 ```
-
----
 
 ## 🚀 本地运行
 
-方式一（最简单）：直接双击 `standalone.html` 或 `index.html`，用浏览器打开即可对弈。
-
-方式二（本地静态服务器，便于开发）：
+### 后端（需 Node.js 18+）
 ```bash
-# 任选其一，在项目根目录执行：
-python -m http.server 8000
-# 或
+npm install
+npm start            # 默认监听 http://localhost:3000
+```
+
+### 前端
+直接用浏览器打开 `index.html` 即可（默认连接 `http://localhost:3000`）。
+或使用任意静态服务器，例如：
+```bash
 npx serve .
 ```
-然后访问 `http://localhost:8000`。
 
----
+### 单文件版（无需后端）
+双击打开 `standalone.html` 即可离线对弈。
 
-## 🌐 部署到 GitHub Pages（让别人点链接就能下棋）
+## 🌐 在线演示
+- **前端（GitHub Pages）**：https://XDC-666.github.io/xdchm/
+- **后端（Render）**：部署后填入你的 Render 地址（见下文）
 
-1. **推送到 GitHub**
-   ```bash
-   # 安装并登录 GitHub CLI（一次性）
-   # Windows: winget install --id GitHub.cli   macOS: brew install gh
-   gh auth login
+> 前端会根据域名自动切换后端地址：本地用 `localhost:3000`，线上用你的 Render 域名（在 `js/api.js` 的 `PROD_BASE` 配置）。
 
-   # 在 GitHub 上建一个空仓库（如 xiangqi-agent），然后：
-   git remote add origin https://github.com/<你的用户名>/xiangqi-agent.git
-   git branch -M main
-   git push -u origin main
-   ```
+## 📡 API 说明
+所有接口统一前缀 `/api`。
 
-2. **开启 Pages**
-   - 进入仓库 `Settings → Pages`
-   - Source 选择 `Deploy from a branch`，Branch 选 `main`，目录选 `/ (root)`
-   - 保存后等待约 1 分钟，访问 `https://<你的用户名>.github.io/xiangqi-agent/` 即可在线对弈。
+| 方法 | 路径 | 鉴权 | 说明 |
+|---|---|---|---|
+| POST | `/register` | 否 | 注册，返回 JWT |
+| POST | `/login` | 否 | 登录，返回 JWT |
+| GET | `/health` | 否 | 健康检查（供 Render 探测） |
+| POST | `/games` | 是 | 保存一局（C） |
+| GET | `/games` | 是 | 我的战绩列表（R） |
+| GET | `/games/:id` | 是 | 单局详情 + 走子序列（R） |
+| DELETE | `/games/:id` | 是 | 删除一局（D） |
+| GET | `/games/leaderboard` | 否 | 公开排行榜（按胜率） |
 
-> 因为本项目是纯静态文件，GitHub Pages 完全够用，无需任何后端或 CI。
+保存对局请求体示例：
+```json
+{
+  "result": "win",
+  "difficulty": "medium",
+  "human_color": "r",
+  "moves": [{"from":"a0","to":"a1"}]
+}
+```
 
----
+## 🗄️ 数据实体关系
+```
+users(1) ──< games(多)
+```
+- `users`：id, username(唯一), password_hash, created_at
+- `games`：id, user_id(FK→users.id), result(win/lose/draw), difficulty, human_color(r/b), moves(JSON 数组), created_at
 
-## 📜 许可证与署名
+一名用户可拥有多局对战记录（一对多）。
 
-- **xqwlight**（position.js / search.js / book.js）：Copyright (C) 2004-2012 www.xqbase.com，GPL-2.0。
-- **xiangqi-engine.js 与界面**：本仓库作者，随整体以 GPL-2.0 发布。
-- 完整 GPL-2.0 文本见 https://www.gnu.org/licenses/old-licenses/gpl-2.0.txt
+## ☁️ 部署（Render + GitHub Pages）
 
----
+### 后端 → Render（免费）
+1. 注册 https://render.com ，New → Web Service → 连接 GitHub 仓库 `XDC-666/xdchm`
+2. 关键设置：
+   - **Build Command**：`npm install`
+   - **Start Command**：`npm start`
+   - **Instance Type**：Free
+3. Render 会自动读取仓库的 `render.yaml`，并生成随机 `JWT_SECRET`
+4. 部署完成后获得地址，形如 `https://xiangqi-agent.onrender.com`
+5. **重要**：在 `js/api.js` 中把 `PROD_BASE` 改成你的实际 Render 地址（若服务名非 xiangqi-agent）
 
-## 🙋 后续可扩展
+### 前端 → GitHub Pages
+1. 仓库 Settings → Pages → Branch 选 `main`、folder `/ (root)` → Save
+2. 约 1~2 分钟后访问 https://XDC-666.github.io/xdchm/
 
-- 接入更强的开源引擎（如 ElephantEye WASM）。
-- 增加联网对战 / 棋谱分享。
-- 用 GitHub Actions 自动部署 Pages（免去手动开启）。
+> GitHub Pages 只托管静态前端；后端由 Render 运行。两者通过 CORS 通信（后端已开启 `cors()`，允许任意来源）。
+
+## 📜 License
+**GPL-2.0** —— 因包含 www.xqbase.com 的 xqwlight 引擎，派生代码须以 GPL-2.0 发布。

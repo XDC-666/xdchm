@@ -258,6 +258,46 @@
     font-size: 12px; font-weight: 700; color: #7a6046;
     border-left: 3px solid var(--accent); padding-left: 8px; margin-top: 4px;
   }
+
+  /* ===== 全栈：登录 / 战绩 / 排行榜 弹窗与提示 ===== */
+  .xq-modal-overlay {
+    position: fixed; inset: 0; background: rgba(20,12,6,.6);
+    display: flex; align-items: center; justify-content: center;
+    opacity: 0; transition: opacity .25s; z-index: 1000; padding: 16px;
+  }
+  .xq-modal-overlay.show { opacity: 1; }
+  .xq-modal {
+    background: linear-gradient(180deg,#fffaf0,#f5ecd8); color:#3d2b1f;
+    width: min(560px, 100%); max-height: 86vh; overflow: auto;
+    border-radius: 16px; box-shadow: 0 20px 60px rgba(0,0,0,.5); border: 1px solid #e3d6c2;
+  }
+  .xq-modal-head { display:flex; justify-content:space-between; align-items:center; padding:14px 18px; border-bottom:1px solid #e3d6c2; font-size:17px; font-weight:700; color:var(--accent); letter-spacing:1px; }
+  .xq-close { background:none; border:none; font-size:24px; color:#9b8a74; cursor:pointer; line-height:1; }
+  .xq-modal-body { padding:16px 18px 20px; }
+  .xq-input { width:100%; padding:9px 11px; border:1px solid #d8c7ad; border-radius:8px; font-size:14px; margin-bottom:10px; box-sizing:border-box; }
+  .xq-btn { background:linear-gradient(180deg,#c89352,#a8733a); color:#fff; border:none; border-radius:9px; padding:9px 14px; font-weight:600; cursor:pointer; font-size:14px; flex:0 0 auto; }
+  .xq-btn.small { padding:5px 10px; font-size:12px; }
+  .xq-btn.danger { background:linear-gradient(180deg,#c0573a,#9c3f28); }
+  .xq-row { display:flex; gap:10px; } .xq-row .xq-btn { flex:1; }
+  .xq-center { text-align:center; margin-top:8px; }
+  .xq-link { background:none; border:none; color:#a8733a; cursor:pointer; font-size:13px; text-decoration:underline; }
+  .xq-msg { color:#c0392b; font-size:13px; min-height:18px; margin-bottom:6px; }
+  .xq-loading, .xq-empty { color:#7a6046; padding:18px; text-align:center; }
+  .xq-game { border:1px solid #e3d6c2; border-radius:10px; padding:10px 12px; margin-bottom:10px; background:#fff; }
+  .xq-game-head { display:flex; align-items:center; gap:10px; flex-wrap:wrap; font-size:13px; }
+  .xq-result { font-weight:700; padding:2px 8px; border-radius:6px; color:#fff; }
+  .xq-win { background:#2e7d32; } .xq-lose { background:#c0392b; } .xq-draw { background:#7d6b5d; }
+  .xq-date { color:#9b8a74; margin-left:auto; }
+  .xq-game-actions { display:flex; gap:6px; margin-left:6px; }
+  .xq-moves.hidden { display:none; }
+  .xq-movelist { margin-top:8px; font-size:13px; line-height:1.7; color:#5c3a1a; background:#faf5ec; border-radius:8px; padding:8px 10px; word-break:break-all; }
+  .xq-lb { display:flex; align-items:center; gap:12px; padding:9px 6px; border-bottom:1px solid #eee; font-size:14px; }
+  .xq-rank { font-weight:700; color:var(--accent); width:28px; }
+  .xq-name { font-weight:700; flex:1; }
+  .xq-sub { color:#9b8a74; font-size:12px; }
+  .xq-toast { position:fixed; left:50%; bottom:30px; transform:translateX(-50%) translateY(20px); background:rgba(40,26,14,.94); color:#fff; padding:10px 18px; border-radius:24px; font-size:14px; opacity:0; transition:all .3s; z-index:2000; box-shadow:0 8px 24px rgba(0,0,0,.4); }
+  .xq-toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
+  .xq-toast.err { background:rgba(150,40,30,.95); }
 </style>
 </head>
 <body>
@@ -373,6 +413,23 @@
       <div class="captured" id="captured">暂无吃子</div>
       <div class="moves-wrap"><div id="moves"></div></div>
 
+      <div class="section-title">账户与战绩</div>
+      <div class="controls">
+        <div class="row">
+          <button id="loginBtn">登录 / 注册</button>
+        </div>
+        <div class="row">
+          <button id="saveGameBtn" disabled style="background:#5b7d6b;">保存本局到战绩</button>
+        </div>
+        <div class="row">
+          <button id="myGamesBtn">我的战绩</button>
+          <button id="leaderboardBtn">排行榜</button>
+        </div>
+        <div class="row">
+          <button id="resignBtn" style="background:#7d6b5d;">认输本局</button>
+        </div>
+      </div>
+
       <div class="hint">
         点击己方棋子选中，再点击高亮位置落子。<br>
         粘贴 FEN 可载入任意局面；示例残局来自你提供的截图。
@@ -380,11 +437,15 @@
     </div>
   </div>
 
+  <div id="modalRoot"></div>
+
   <!-- 开源强引擎：象眼 xqwlight（ElephantEye 谱系，GPL-2.0，by www.xqbase.com） -->
   <script src="xqwlight/position.js"></script>
   <script src="xqwlight/search.js"></script>
   <script src="xqwlight/book.js"></script>
   <script src="xiangqi-engine.js"></script>
+  <!-- 全栈接口层：登录态 + 对局结束回调 -->
+  <script src="js/api.js"></script>
   <script>
   (function () {
     const { RED, BLACK, opp, initialBoard, legalMoves, makeMove, undoMove,
@@ -466,6 +527,7 @@
     let board, turn, history, moveList, capturedByRed, capturedByBlack;
     let lastMove, selected, legalTargets, thinking, gameOver, winner, humanColor;
     let mode = 'ai', replay = null, playTimer = null, practiceHint = null;
+    let gameOverEmitted = false;
 
     function aiColor() { return opp(humanColor); }
     function curDepth() {
@@ -506,6 +568,7 @@
       thinking = false;
       gameOver = false;
       winner = null;
+      gameOverEmitted = false;
       humanColor = sideSel.value === 'b' ? BLACK : RED;
       overlay.classList.remove('show');
       updatePlayerBars();
@@ -969,6 +1032,7 @@
       if (moves.length === 0) {
         gameOver = true;
         winner = opp(side);
+        emitGameOver(winner === humanColor ? 'win' : 'lose');
         const txt = winner === RED ? '红方胜利 🎉' : '黑方胜利 🎉';
         setStatus(txt, 'win');
         overlay.classList.remove('show');
@@ -985,6 +1049,31 @@
       }
       updatePlayerBars();
       return false;
+    }
+
+    // ---------- 全栈：对局结束回调 / 认输 ----------
+    function collectGameData() {
+      return {
+        moves: history.map(m => ({ from: m.from, to: m.to, color: m.piece.c, note: notation(m, m.piece.c) })),
+        difficulty: difficultySel.value,
+        human_color: humanColor === RED ? 'r' : 'b'
+      };
+    }
+    function emitGameOver(result) {
+      if (gameOverEmitted) return;
+      gameOverEmitted = true;
+      if (window.XQAPI && window.XQAPI.emitGameOver) {
+        window.XQAPI.emitGameOver(result, collectGameData());
+      }
+    }
+    function resign() {
+      if (mode !== 'ai' || gameOver) return;
+      gameOver = true;
+      winner = aiColor();
+      setStatus((winner === RED ? '红方' : '黑方') + '胜利（你认输）', 'win');
+      overlay.classList.remove('show');
+      render();
+      emitGameOver('lose');
     }
 
     function aiMove() {
@@ -1310,7 +1399,12 @@
     populateGames();
 
     newGame();
+    window.XQReplay = startReplay;   // 供"我的战绩-回放"调用
+    window.XQNewGame = newGame;
+    window.XQResign = resign;
   })();
   </script>
+  <!-- 全栈界面层：登录 / 战绩 / 排行榜 弹窗 -->
+  <script src="js/ui.js"></script>
 </body>
 </html>
