@@ -1,9 +1,10 @@
-// 前端 API 封装：自动在「本地 localhost:3000」与「线上 Render」之间切换基地址
+// 前端 API 封装：自动在「本地 localhost:3000」与「线上 Cloudflare Tunnel 后端」之间切换基地址
 // 也负责登录态(token)的存取与「对局结束」事件的广播。
 window.XQAPI = (function () {
   // 本地开发指向 localhost:3000；部署到 GitHub Pages 后自动指向线上后端。
-  // 若你的 Render 服务名不同，把下面的地址改成实际地址即可。
-  const PROD_BASE = 'https://xiangqi-agent.onrender.com';
+  // 后端由 Cloudflare Tunnel 临时暴露：https://creativity-mathematics-collar-crops.trycloudflare.com
+  // 注意：该隧道 URL 在重启 cloudflared 后会变化，变化后请同步更新此处。
+  const PROD_BASE = 'https://creativity-mathematics-collar-crops.trycloudflare.com';
   const isProd = location.hostname.endsWith('.github.io') || location.hostname.endsWith('.onrender.com');
   const base = isProd ? PROD_BASE : 'http://localhost:3000';
 

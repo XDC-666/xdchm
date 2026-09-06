@@ -1,3 +1,6 @@
+// 必须在读取 process.env 的其他模块加载前执行
+require('dotenv').config();
+
 // Express 入口：提供 /api 接口（前端在 GitHub Pages 或本地调用，已开启 CORS）
 const express = require('express');
 const cors = require('cors');

@@ -12,8 +12,25 @@ function sign(uid, username) {
   return jwt.sign({ uid, username }, JWT_SECRET, { expiresIn: TOKEN_TTL });
 }
 
+// 简单全局限流：60 秒内最多 20 次注册（防脚本刷库）。
+// 注：经 Cloudflare Tunnel 穿透后所有请求源 IP 均为 127.0.0.1，
+//      按真实 IP 限流会误伤，故采用全局窗口计数。
+const registerLog = [];
+const REGISTER_WINDOW = 60 * 1000;
+const REGISTER_MAX = 20;
+function registerAllowed() {
+  const now = Date.now();
+  while (registerLog.length && registerLog[0] < now - REGISTER_WINDOW) registerLog.shift();
+  if (registerLog.length >= REGISTER_MAX) return false;
+  registerLog.push(now);
+  return true;
+}
+
 // POST /api/register  { username, password }
 router.post('/register', (req, res) => {
+  if (!registerAllowed()) {
+    return res.status(429).json({ error: '注册过于频繁，请稍后再试' });
+  }
   const { username, password } = req.body || {};
   if (!username || !password) return res.status(400).json({ error: '用户名和密码必填' });
   if (username.length > 20) return res.status(400).json({ error: '用户名最长 20 位' });
