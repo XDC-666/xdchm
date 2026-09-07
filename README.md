@@ -10,6 +10,7 @@
 - 💾 **对局存档**：每局走子序列 + 结果 + 难度存入数据库
 - 🔁 **战绩回放**：查看历史棋局，逐步重放
 - 🏆 **排行榜**：按胜率排名（公开）
+- 🛡️ **安全加固**：CORS 白名单、JWT_SECRET 缺失即拒绝启动、helmet 安全头、统一错误处理
 - 📱 纯前端界面，移动端自适应
 
 ## 🧱 技术栈
@@ -18,7 +19,7 @@
 - **后端**：Node.js + Express
 - **数据库**：SQLite（better-sqlite3，单文件，零运维）
 - **鉴权**：JWT（jsonwebtoken）+ bcryptjs
-- **部署**：GitHub Pages（前端）+ Render（后端，免费）
+- **部署**：GitHub Pages（前端）+ Render（后端，免费）/ 任意容器平台（Dockerfile 已附）
 
 ## 📂 目录结构
 ```
@@ -31,13 +32,16 @@ xiangqi-agent/
 │   ├── api.js           # 前端 API 封装 + 登录态管理
 │   └── ui.js            # 登录 / 战绩 / 排行榜 弹窗逻辑
 ├── server/              # Node.js 后端
-│   ├── app.js           # Express 入口
+│   ├── app.js           # Express 入口（CORS/helmet/错误处理）
 │   ├── db.js            # SQLite 建表（users / games）
 │   ├── auth.js          # 注册 / 登录 / JWT
 │   ├── middleware.js    # JWT 鉴权中间件
 │   └── games.js         # 对局 CRUD + 排行榜
+├── test/                # 端到端冒烟测试（node --test）
 ├── data/                # SQLite 数据库文件（运行时生成，已 gitignore）
 ├── render.yaml          # Render 部署配置
+├── Dockerfile           # 容器化部署
+├── .env.example         # 环境变量样例
 ├── package.json
 ├── README.md
 └── LICENSE              # GPL-2.0
@@ -47,8 +51,10 @@ xiangqi-agent/
 
 ### 后端（需 Node.js 18+）
 ```bash
+cp .env.example .env      # 然后编辑 .env，务必设置 JWT_SECRET
 npm install
-npm start            # 默认监听 http://localhost:3000
+npm start                 # 默认监听 http://localhost:3000
+npm test                  # 运行冒烟测试（无需额外依赖）
 ```
 
 ### 前端
@@ -116,7 +122,16 @@ users(1) ──< games(多)
 1. 仓库 Settings → Pages → Branch 选 `main`、folder `/ (root)` → Save
 2. 约 1~2 分钟后访问 https://XDC-666.github.io/xdchm/
 
-> GitHub Pages 只托管静态前端；后端由 Render 运行。两者通过 CORS 通信（后端已开启 `cors()`，允许任意来源）。
+> GitHub Pages 只托管静态前端；后端由 Render 运行。两者通过 **CORS 白名单**通信：
+> 后端默认允许 `localhost:3000` 与 `https://XDC-666.github.io` 跨域；
+> 若使用 Cloudflare Tunnel 等额外前端地址，在 `.env` 的 `CLIENT_ORIGIN` 中追加（逗号分隔）。
+
+## 🐳 容器化部署（可选）
+仓库已附 `Dockerfile`，可在任意支持容器的平台运行：
+```bash
+docker build -t xiangqi-agent .
+docker run -e JWT_SECRET=你的随机密钥 -e PORT=3000 -p 3000:3000 xiangqi-agent
+```
 
 ## 📜 License
 **GPL-2.0** —— 因包含 www.xqbase.com 的 xqwlight 引擎，派生代码须以 GPL-2.0 发布。
