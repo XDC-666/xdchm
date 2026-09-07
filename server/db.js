@@ -6,7 +6,8 @@ const Database = require('better-sqlite3');
 const path = require('path');
 const fs = require('fs');
 
-const dataDir = path.join(__dirname, '..', 'data');
+// 支持通过 DATA_DIR 覆盖数据库目录（便于测试隔离；默认 data/）
+const dataDir = path.join(__dirname, '..', process.env.DATA_DIR || 'data');
 if (!fs.existsSync(dataDir)) fs.mkdirSync(dataDir, { recursive: true });
 
 const db = new Database(path.join(dataDir, 'xiangqi.db'));
