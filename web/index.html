@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>中国象棋 · 人机对战（Vue3 版）</title>
+  </head>
+  <body>
+    <div id="app"></div>
+    <!-- 开源强引擎：象眼 xqwlight（ElephantEye 谱系，GPL-2.0，by www.xqbase.com）。
+         普通脚本加载，挂全局 window.Position / Search / SRC / DST，供强 AI 使用。 -->
+    <script src="/xqwlight/position.js"></script>
+    <script src="/xqwlight/search.js"></script>
+    <script src="/xqwlight/book.js"></script>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>
