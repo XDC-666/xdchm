@@ -4,6 +4,8 @@
 
 > 本项目以 **GPL-2.0** 发布（因包含 www.xqbase.com 的 xqwlight，GPL-2.0）。
 
+**🌐 简体中文 | [English](./README_EN.md)**
+
 ## ✨ 功能特性
 - 🎮 **人机对战**：自研搜索引擎（alpha-beta + 开局库）对阵开源强引擎 xqwlight
 - 👤 **用户系统**：注册 / 登录（JWT 鉴权，密码 bcrypt 哈希）
